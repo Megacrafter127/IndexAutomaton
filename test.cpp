@@ -7,7 +7,6 @@
 
 #ifdef DEBUG
 #include "IndexAutomaton.hpp"
-#include <cstdlib>
 #include <iostream>
 
 using namespace std;
@@ -22,10 +21,10 @@ int main(int vc,char** va) {
 			for(int i=1;i<vc;i++,--a) {
 				a << va[i+1];
 				if(!a) cout << i << ": No matches" << endl;
-				else for(IndexAutomaton::iterator j=a.begin();j!=a.end();j++) {
+				else for(auto &&matchIdx:a) {
 					if(need) cout << endl;
 					else need=true;
-					cout << i << ": " << *j;
+					cout << i << ": " << matchIdx;
 				} if(~a) {
 					cout << " end";
 				}

@@ -6,7 +6,6 @@
  */
 
 #include "IndexAutomaton.hpp"
-#include <cstdlib>
 #include <cstring>
 #include <iostream>
 
@@ -43,9 +42,9 @@ IndexAutomaton::IndexAutomaton(const char *searchString) {
 	this->currentState=0;
 	this->inputCount=0;
 	this->stateCount=strlen(searchString)+1;
-	this->searchString=(char*)malloc(this->stateCount);
+	this->searchString=new char[this->stateCount];
 	strcpy(this->searchString,searchString);
-	this->stateFunc=(struct sf*)calloc(this->stateCount,sizeof(struct sf));
+	this->stateFunc=new struct sf[this->stateCount];
 	for(size_t i=0;i<this->stateCount;i++) {
 		unsigned char c=searchString[i]-1;
 		if(c<255) this->stateFunc[i][c]=i+1;
@@ -58,7 +57,7 @@ IndexAutomaton::IndexAutomaton(const char *searchString) {
 				}
 			}
 			if(match && searchString[i]!=searchString[j]) {
-				this->stateFunc[i][(unsigned char)searchString[j]-1]=j+1;
+				this->stateFunc[i][static_cast<unsigned char>(searchString[j])-1]=j+1;
 			}
 		}
 	}
@@ -67,20 +66,20 @@ IndexAutomaton::IndexAutomaton(const char *searchString) {
 
 IndexAutomaton::IndexAutomaton(const IndexAutomaton &src) {
 	this->currentState=0;
-	this->stateCount=strlen(src.searchString);
-	this->stateFunc=(struct sf*)calloc(this->stateCount,sizeof(struct sf));
-	for(unsigned int i=0;i<this->stateCount;i++) {
+	this->stateCount=src.stateCount;
+	this->stateFunc=new struct sf[this->stateCount];
+	for(size_t i=0;i<this->stateCount;i++) {
 		this->stateFunc[i]=src.stateFunc[i];
 	}
 	this->inputCount=0;
-	this->searchString=(char*)malloc(this->stateCount);
+	this->searchString=new char[this->stateCount];
 	strcpy(this->searchString,src.searchString);
 }
 
 IndexAutomaton &IndexAutomaton::parse(const char character) {
-	this->currentState=this->stateFunc[this->currentState][(unsigned char)character-1];
+	this->currentState=this->stateFunc[this->currentState][static_cast<unsigned char>(character)-1];
 	this->inputCount++;
-	if((bool)this->stateFunc[this->currentState]) {
+	if(this->stateFunc[this->currentState]) {
 		this->matches.insert(this->inputCount+1-this->stateCount);
 	}
 	return *this;
@@ -158,11 +157,11 @@ ostream &IndexAutomaton::print(ostream &stream) {
 			stream.put(')');
 		} else stream << "   ";
 		stream << ": ";
-		if((bool)this->stateFunc[i]) stream << "! ";
+		if(this->stateFunc[i]) stream << "! ";
 		for(unsigned char c=0;c<255;c++) {
 			size_t n=this->stateFunc[i][c];
 			if(n) {
-				(stream << "( ").put((char)c+1) << " , " << n << " ) ";
+				(stream << "( ").put(static_cast<char>(c+1)) << " , " << n << " ) ";
 			}
 		}
 		stream << endl;
