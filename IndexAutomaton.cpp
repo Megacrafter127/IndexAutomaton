@@ -111,7 +111,7 @@ IndexAutomaton::reverse_iterator IndexAutomaton::rend() {
 }
 
 bool IndexAutomaton::hasMatch() {
-	return !!this;
+	return !!*this;
 }
 
 IndexAutomaton::operator bool() {
